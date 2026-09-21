@@ -3,3 +3,7 @@
 cover.out
 .idea/
 .vscode/
+c
+*.coverprofile
+coverage*
+cover*.out
