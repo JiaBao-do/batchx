@@ -42,3 +42,4 @@ Skipped: independent verifier agent not spawned. Dependabot opened 3 action-bump
 Board: agentboard RUNNING.md absent; nothing synced.
 
 Tag: v0.1.0 -> c61a71f. proxy.golang.org info: Version v0.1.0, Hash c61a71f (2026-09-21T03:48:00Z). pkg.go.dev page not rendered yet at check time (queued).
+pkg.go.dev: page https://pkg.go.dev/github.com/JiaBao-do/batchx@v0.1.0 renders (no 'not found'), README badge links to it. Head 3126124 CI green. Stray file c removed in fef2ea3 (still present in the immutable v0.1.0 archive).
