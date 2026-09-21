@@ -2,7 +2,7 @@
 
 | stage | attempts | updated | evidence |
 |-------|----------|---------|----------|
-| verified, CI green, ready to tag v0.1.0 | 0 | 2026-09-21 | repo https://github.com/JiaBao-do/batchx ; see Ledger |
+| tagged v0.1.0 (on c61a71f, CI run 35558757621 green), proxy.golang.org indexed; pkg.go.dev page pending | 0 | 2026-09-21 | repo https://github.com/JiaBao-do/batchx ; see Ledger |
 
 ## Step 0 evidence (2026-09-21)
 
@@ -40,3 +40,5 @@ fuzz FuzzReaders 15s+20s no findings, govulncheck none, go build ok, no TODO/FIX
 Property test: TestPropertyMatchesNaiveWithCrashes (300 random cases, 0-3 injected crashes, memory and file repos) equals naive reference.
 Skipped: independent verifier agent not spawned. Dependabot opened 3 action-bump branches (checkout-7, setup-go-7, golangci-lint-action-9); not touched.
 Board: agentboard RUNNING.md absent; nothing synced.
+
+Tag: v0.1.0 -> c61a71f. proxy.golang.org info: Version v0.1.0, Hash c61a71f (2026-09-21T03:48:00Z). pkg.go.dev page not rendered yet at check time (queued).
