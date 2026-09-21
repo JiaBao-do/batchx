@@ -2,7 +2,7 @@
 
 | stage | attempts | updated | evidence |
 |-------|----------|---------|----------|
-| validated (PARTIAL gap, proceed) | 0 | 2026-09-21 | Step 0 below |
+| verified, CI green, ready to tag v0.1.0 | 0 | 2026-09-21 | repo https://github.com/JiaBao-do/batchx ; see Ledger |
 
 ## Step 0 evidence (2026-09-21)
 
@@ -27,4 +27,16 @@ agentboard RUNNING.md did not exist at check time; nothing synced. Sync later: s
 
 ## Ledger
 
-(updated below as units are pushed)
+| unit | commit | evidence |
+|------|--------|----------|
+| core: chunk step, job, restart, skip/retry, repos, readers/writers, tests, scaffold | 824e77e | local: race tests pass, cov 92.2%, golangci-lint 0 issues, govulncheck clean, go1.24.0 vet+test OK |
+| fix: tidy check tolerates missing go.sum | c040399 | hook failed first push (git diff go.sum); fixed |
+| chore: hook prepends gcc dir to PATH | f66d529 | Windows/Git Bash: Git's /mingw64/bin DLLs shadow msys2 gcc DLLs -> cgo fails -> TSan error 87; fixed; first push accepted |
+| docs: examples, PITFALLS, README | 41bfbda | CI run 35558545744 green: 8 test jobs (ubuntu/windows/macos x Go 1.24/stable), lint, vuln |
+
+Phase 5 gate (2026-09-21, HEAD 41bfbda): gofmt clean, go mod tidy no diff, go vet clean (stdversion on go 1.24 directive), golangci-lint 0 issues,
+`go test -race -shuffle=on` ok (core coverage 92.4%), benchmarks with allocs (StepChunk10 4031 allocs/op, StepChunk1000 71 allocs/op, FileRepositorySave ~3ms/op),
+fuzz FuzzReaders 15s+20s no findings, govulncheck none, go build ok, no TODO/FIXME.
+Property test: TestPropertyMatchesNaiveWithCrashes (300 random cases, 0-3 injected crashes, memory and file repos) equals naive reference.
+Skipped: independent verifier agent not spawned. Dependabot opened 3 action-bump branches (checkout-7, setup-go-7, golangci-lint-action-9); not touched.
+Board: agentboard RUNNING.md absent; nothing synced.
