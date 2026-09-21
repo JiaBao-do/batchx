@@ -1,5 +1,8 @@
 #!/bin/sh
 set -e
+# Prefer the C toolchain's own directory: with Git for Windows, same-named DLLs earlier on PATH
+# break gcc/cgo and then the race detector fails with ThreadSanitizer error 87.
+if gcc_path=$(command -v gcc 2>/dev/null); then PATH="$(dirname "$gcc_path"):$PATH"; export PATH; fi
 [ -z "$(gofmt -l .)" ] || { echo "gofmt needed:"; gofmt -l .; exit 1; }
 go mod tidy && git diff --exit-code -- go.mod $(ls go.sum 2>/dev/null)
 go vet ./...
