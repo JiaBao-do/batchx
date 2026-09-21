@@ -12,21 +12,68 @@ job repository. Standard library only, no CGO. Requires Go 1.24+.
 ## Quick start
 
 ```go
-repo, _ := batchx.NewFileRepository("./batch-state")          // JSON files; or &batchx.MemoryRepository{}
-step, _ := batchx.NewStep("import",
-    batchx.NewCSVReader(f, true),                              // Reader[[]string]
-    batchx.ProcessorFunc[[]string, User](parse),               // Processor[[]string, User]
-    batchx.NewJSONLWriter[User](out),                          // Writer[User]
-    batchx.WithChunkSize(500),
-    batchx.WithSkipLimit(10),                                  // tolerate 10 bad rows (csv.ParseError is skippable)
-    batchx.WithRetry(batchx.Retry{MaxAttempts: 3, Backoff: batchx.ExponentialBackoff(100*time.Millisecond, 2*time.Second)}),
+// Quickstart: read CSV, process each row, write JSON lines, in chunks of 2.
+// Run: go run ./examples/quickstart
+package main
+
+import (
+	"context"
+	"log"
+	"os"
+	"strings"
+
+	"github.com/JiaBao-do/batchx"
 )
-rec, err := batchx.NewJob("nightly-import", repo).Then(step).Run(ctx, batchx.Params{"day": "2026-09-21"})
+
+type User struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+func main() {
+	in := strings.NewReader("id,name\n1,ann\n2,bob\n3,cy\n")
+	toUser := batchx.ProcessorFunc[[]string, User](func(_ context.Context, r []string) (User, error) {
+		return User{ID: r[0], Name: strings.ToUpper(r[1])}, nil
+	})
+	step, err := batchx.NewStep("import", batchx.NewCSVReader(in, true), toUser,
+		batchx.NewJSONLWriter[User](os.Stdout), batchx.WithChunkSize(2))
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := batchx.NewJob("quickstart", nil).Then(step).Run(context.Background(), nil); err != nil {
+		log.Fatal(err)
+	}
+}
 ```
 
-If the process dies or `ctx` is cancelled, run the same job with the same params again: completed steps are
-skipped and the failed step resumes from its last committed checkpoint. A completed instance returns
-`ErrAlreadyCompleted`. Runnable versions are in `example_test.go`.
+This is `examples/quickstart` (a test keeps them identical). If the process dies or `ctx` is cancelled, run the
+same job with the same params again: completed steps are skipped and the failed step resumes from its last
+committed checkpoint. A completed instance returns `ErrAlreadyCompleted`.
+
+## Examples
+
+Runnable programs, each with an `expected_output.txt` that CI compares against:
+
+| Program | Shows |
+|---|---|
+| `go run ./examples/quickstart` | CSV to processor to JSON lines, chunked |
+| `go run ./examples/restart` | crash mid-run, rerun, resume from the checkpoint |
+| `go run ./examples/skipretry` | skipping bad rows, retry with backoff, listeners |
+| `go run ./examples/filerepo` | the JSON job state file before and after a restart |
+| `go run ./examples/demo` | multi-step job: parallel loads, join, retry, skip, report |
+
+## Things to care about
+
+Full list with wrong/right snippets, each backed by a test: [docs/PITFALLS.md](docs/PITFALLS.md). The important ones:
+
+- **At-least-once.** A crash after `Write` but before the checkpoint re-writes that chunk. Make writers idempotent (upsert by key).
+- **Readers must replay the same order** on restart, and non-seekable readers (lines, CSV, JSONL, channels) must be
+  created fresh for every run, or the restart silently skips data.
+- **Retry retries skippable errors by default.** Set `Retry.If` so bad rows are not retried.
+- **Skip limit is per job instance across restarts;** default 0 means any error fails the step.
+- **Chunk size** is memory plus one repository save per chunk; the file repository fsyncs on each save.
+- **Parallel steps run concurrently;** share nothing without your own locking.
+- **No cross-process locking** in `FileRepository`; step names are checkpoint keys (renaming restarts the step).
 
 ## Concepts
 

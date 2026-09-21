@@ -18,6 +18,8 @@ Fills the gap left by Spring Batch in the Go ecosystem.
 - `repository.go`: `Repository` interface, `MemoryRepository`, `FileRepository` (atomic rename).
 - `readers.go`/`writers.go`: slice, chan, iter.Seq, lines, CSV, JSONL.
 - `retry.go`, `listener.go`, `errors.go`.
+- `examples/`: runnable programs with `expected_output.txt` (checked by `examples/examples_test.go`; README quick start must equal `examples/quickstart/main.go`).
+- `docs/PITFALLS.md`: every claim is backed by a `TestPitfall*` in `pitfalls_test.go`; change behavior => update both.
 
 ## Conventions
 - Requires Go 1.24+ (go.mod 1.24, CI 1.24 + stable). Do not use APIs newer than 1.24 (no WaitGroup.Go, no errors.AsType), stdlib only, no CGO.

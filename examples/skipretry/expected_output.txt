@@ -1,0 +1,6 @@
+skip  [process] item=[2 not-a-number]
+skip  [read] item=<nil>
+retry [process] attempt=1 err=rate limited
+retry [process] attempt=2 err=rate limited
+status=completed read=4 written=3 skipped=2 retries=2 err=<nil>
+amounts: [10 40 50]

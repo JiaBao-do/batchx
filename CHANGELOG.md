@@ -10,3 +10,5 @@ All notable changes are documented here. Format: Keep a Changelog; versioning: S
 - Restart from the last committed chunk; MemoryRepository and JSON FileRepository.
 - Skip limits with typed skippable errors, retry with backoff, listeners, context cancellation.
 - Readers: slice, channel, iter.Seq, lines, CSV, JSONL. Writers: slice, CSV, JSONL.
+- examples/ (quickstart, restart, skipretry, filerepo, demo) and docs/PITFALLS.md backed by tests.
+- Requires Go 1.24+.

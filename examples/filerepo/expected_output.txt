@@ -1,0 +1,64 @@
+run 1 error: batchx: job "nightly" step "export": write: disk full
+65bc160ca418e13bda872a290cf39da2.json:
+{
+  "version": 1,
+  "name": "nightly",
+  "key": "65bc160ca418e13bda872a290cf39da2",
+  "params": {
+    "day": "2026-01-01"
+  },
+  "status": "failed",
+  "attempts": 1,
+  "steps": [
+    {
+      "name": "export",
+      "status": "failed",
+      "attempts": 1,
+      "position": 2,
+      "read": 2,
+      "written": 2,
+      "filtered": 0,
+      "skipped": 0,
+      "retries": 0,
+      "commits": 1,
+      "err": "write: disk full",
+      "startedAt": "2026-01-02T03:04:05Z",
+      "endedAt": "2026-01-02T03:04:05Z"
+    }
+  ],
+  "err": "batchx: job \"nightly\" step \"export\": write: disk full",
+  "startedAt": "2026-01-02T03:04:05Z",
+  "updatedAt": "2026-01-02T03:04:05Z",
+  "endedAt": "2026-01-02T03:04:05Z"
+}
+run 2: completed attempts 2 err <nil>
+65bc160ca418e13bda872a290cf39da2.json:
+{
+  "version": 1,
+  "name": "nightly",
+  "key": "65bc160ca418e13bda872a290cf39da2",
+  "params": {
+    "day": "2026-01-01"
+  },
+  "status": "completed",
+  "attempts": 2,
+  "steps": [
+    {
+      "name": "export",
+      "status": "completed",
+      "attempts": 2,
+      "position": 5,
+      "read": 5,
+      "written": 5,
+      "filtered": 0,
+      "skipped": 0,
+      "retries": 0,
+      "commits": 3,
+      "startedAt": "2026-01-02T03:04:05Z",
+      "endedAt": "2026-01-02T03:04:05Z"
+    }
+  ],
+  "startedAt": "2026-01-02T03:04:05Z",
+  "updatedAt": "2026-01-02T03:04:05Z",
+  "endedAt": "2026-01-02T03:04:05Z"
+}

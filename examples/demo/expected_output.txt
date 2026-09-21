@@ -1,0 +1,14 @@
+prepare: ok
+retry 1: tax service timeout
+skipped: unknown customer "c9"
+skipped: strconv.Atoi: parsing "x": invalid syntax
+report: 3 invoices, total 4500 cents
+prepare         completed read=0 written=0 skipped=0
+load-customers  completed read=2 written=2 skipped=0
+load-prices     completed read=2 written=2 skipped=0
+index           completed read=0 written=0 skipped=0
+invoice         completed read=5 written=3 skipped=2
+report          completed read=0 written=0 skipped=0
+invoice: {Customer:Ann Item:book Cents:2000}
+invoice: {Customer:Bob Item:pen Cents:1500}
+invoice: {Customer:Bob Item:book Cents:1000}

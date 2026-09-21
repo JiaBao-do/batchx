@@ -1,0 +1,8 @@
+write [1 2 3]
+write [4 5 6]
+run 1: failed, checkpoint=6, err=batchx: job "restart-demo" step "copy": write: simulated crash
+write [7 8 9]
+write [10]
+run 2: completed, attempts=2, written=10, err=<nil>
+output: [1 2 3 4 5 6 7 8 9 10]
+run 3: true
