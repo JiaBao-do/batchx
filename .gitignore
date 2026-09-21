@@ -7,3 +7,6 @@ c
 *.coverprofile
 coverage*
 cover*.out
+
+# Local run notes may contain machine paths: never commit
+/RUNNING.md

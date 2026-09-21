@@ -1,4 +1,5 @@
 #!/bin/sh
+sh "$(dirname "$0")/leakcheck.sh" || exit 1
 set -e
 # Prefer the C toolchain's own directory: with Git for Windows, same-named DLLs earlier on PATH
 # break gcc/cgo and then the race detector fails with ThreadSanitizer error 87.
