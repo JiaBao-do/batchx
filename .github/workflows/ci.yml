@@ -21,7 +21,7 @@ jobs:
       - run: go mod download
       - name: tidy
         shell: bash
-        run: go mod tidy && git diff --exit-code go.mod go.sum
+        run: go mod tidy && git diff --exit-code -- go.mod $(ls go.sum 2>/dev/null)
       - run: go vet ./...
       - run: go test -race -shuffle=on -coverprofile=cover.out ./...
         if: matrix.os != 'windows-latest'
