@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -167,6 +168,65 @@ func TestWritersPropagateErrors(t *testing.T) {
 	}
 	if err := NewJSONLWriter[int](errWriter{}).Write(context.Background(), []int{1}); err == nil {
 		t.Fatal("jsonl")
+	}
+}
+
+// faultAfterWriter simulates a sink that refuses a Write call outright (0
+// bytes, error) once accepting it would push the total bytes it has ever
+// accepted past limit. It never partially completes a single Write call
+// (an "atomic per call" sink, e.g. a quota-enforcing writer): each call
+// either lands in full or not at all.
+type faultAfterWriter struct {
+	buf   bytes.Buffer
+	limit int
+	total int
+}
+
+func (w *faultAfterWriter) Write(p []byte) (int, error) {
+	if w.total+len(p) > w.limit {
+		return 0, errors.New("fault: sink refused write past limit")
+	}
+	n, err := w.buf.Write(p)
+	w.total += n
+	return n, err
+}
+
+// TestCSVWriterChunkAtomicOnFailure is a regression test for a bug where
+// CSVWriter encoded rows directly into the caller's io.Writer. encoding/csv
+// wraps a 4KB bufio.Writer that auto-flushes mid-chunk, independent of row
+// boundaries; a chunk that failed partway (here: the sink refusing a write
+// once it had already accepted 4096 bytes) could leave a row torn
+// mid-record on the sink even though the chunk was reported as failed and
+// would be retried -- corrupting the stream instead of producing the clean
+// "rows repeat" duplicate that at-least-once retry promises.
+//
+// CSVWriter now buffers the whole chunk in memory and performs a single
+// Write to the underlying io.Writer only once the entire chunk has encoded
+// successfully, so on failure the sink gets either the complete chunk or
+// nothing from it. This test fails against the old implementation (a
+// 4096-byte prefix, cut mid-row, reaches the sink) and passes against the
+// fix (zero bytes reach the sink, since the one real Write call for this
+// ~12KB chunk is rejected outright by the fault sink's 5000-byte limit).
+func TestCSVWriterChunkAtomicOnFailure(t *testing.T) {
+	const rowWidth = 24 // len("00000000000000000000,xx\n")-1, fixed width so torn rows are detectable
+	var recs [][]string
+	for i := 0; i < 500; i++ {
+		recs = append(recs, []string{fmt.Sprintf("%020d", i), "xx"})
+	}
+	fw := &faultAfterWriter{limit: 5000}
+	err := NewCSVWriter(fw).Write(context.Background(), recs)
+	if err == nil {
+		t.Fatal("expected the chunk write to fail")
+	}
+	sink := fw.buf.Bytes()
+	if len(sink) == 0 {
+		return // clean: nothing reached the sink for the failed chunk
+	}
+	if len(sink)%rowWidth != 0 {
+		t.Fatalf("partial row leaked: %d bytes reached the sink, not a multiple of row width %d:\n%q", len(sink), rowWidth, sink)
+	}
+	if _, err := csv.NewReader(bytes.NewReader(sink)).ReadAll(); err != nil {
+		t.Fatalf("malformed row leaked: sink content is not valid CSV: %v:\n%q", err, sink)
 	}
 }
 
