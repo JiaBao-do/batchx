@@ -3,6 +3,8 @@
 All notable changes are documented here. Format: Keep a Changelog; versioning: SemVer.
 
 ## [Unreleased]
+
+## [0.1.1] - 2026-09-22
 ### Fixed
 - `CSVWriter` now buffers a whole chunk's CSV output in memory and issues a single `Write` to the
   underlying `io.Writer` only once the chunk has fully and successfully encoded. Previously, `encoding/csv`'s
@@ -14,6 +16,7 @@ All notable changes are documented here. Format: Keep a Changelog; versioning: S
   line endings on a fresh Windows clone with `core.autocrlf=true`: `gofmt -l` is now clean and files check
   out as LF-only, where a fresh clone of the v0.1.0 tag (which predates `.gitattributes`) reproducibly
   checks out as CRLF and fails `gofmt -l` on every file.
+- Both found by an independent verification pass, not by a user report.
 
 ## [0.1.0]
 ### Added
